@@ -1,0 +1,32 @@
+services:
+  struts:
+    image: vulhub/struts2:2.3.30
+    container_name: equifax-lab-struts
+    ports:
+      - "${LAB_HOST_IP:-127.0.0.1}:8080:8080"
+    networks:
+      - lab
+
+  guard:
+    build:
+      context: ./guard
+    container_name: equifax-lab-guard
+    environment:
+      UPSTREAM: http://struts:8080
+    ports:
+      - "${LAB_HOST_IP:-127.0.0.1}:8081:8081"
+    depends_on:
+      - struts
+    networks:
+      - lab
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+networks:
+  lab:
+    internal: true
