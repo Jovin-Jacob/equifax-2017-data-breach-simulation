@@ -49,7 +49,7 @@ docker compose up -d
 docker compose ps
 ```
 
-The app has no browser-based instructions or dashboard; interact with it from Kali using the supplied command-line script.
+The lab is terminal-driven. An optional dashboard can run locally on Kali and display results from the command-line script; it does not send requests to the target.
 
 ## Attack Simulation from Kali
 
@@ -80,6 +80,24 @@ docker compose logs --no-color --tail=30 guard
 ```
 
 The event records the source address, method, path, action (`blocked`), and reason. The proxy is a compensating control for the lab, not a replacement for patching. The actual remediation is to upgrade Struts to a vendor-supported fixed release; Apache's original S2-045 advisory identifies 2.3.32 and 2.5.10.1 as releases fixing this issue.
+
+## Optional Kali Visualization
+
+The dashboard is optional. Copy the `visualizer` directory to Kali. In one Kali terminal, start it:
+
+```bash
+cd visualizer
+python3 dashboard.py
+```
+
+Open `http://127.0.0.1:8090` in Kali's browser. In another Kali terminal, run the attack commands from the `attacker` directory and add `--dashboard`:
+
+```bash
+python3 equifax_demo.py 192.168.56.20 --port 8080 --dashboard
+python3 equifax_demo.py 192.168.56.20 --port 8081 --dashboard
+```
+
+Replace the example address with the Ubuntu target VM's host-only IP. The script sends the observed status and proof marker to the dashboard on Kali loopback. The dashboard binds only to `127.0.0.1`, stores up to 40 results in memory, and does not send traffic to the target. Without `--dashboard`, the terminal demo is unchanged. See [visualizer/README.md](visualizer/README.md) for details.
 
 Finish recording the Kali session with `exit`. Capture screenshots of the direct proof response, the blocked response, and the proxy log. Keep the text log as command evidence. Redact no meaningful values, but do not include personal data; all lab data is synthetic.
 
